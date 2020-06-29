@@ -1,0 +1,507 @@
+<!-- 
+    1.封装通过id、className、TagName来获取元素的方法
+    2.封装兼容性添加、删除事件的函数
+    3.封装设置和获取css样式的函数
+    4.为快捷键绑定事件的方法
+    5.中文转Unicode码减少底层转换和RAM开销
+    6.JavaScript时间函数实现缓慢删除和缓慢添加效果
+    7.字符限制方式
+ -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>仿微博腾讯效果</title>
+    <style>
+        body {
+            background-color: #333;
+        }
+        
+        .wb {
+            width: 480px;
+            margin: auto;
+            background-color: white;
+            border-radius: 5px;
+        }
+        
+        .foc {
+            border: 1px solid rgb(47, 178, 187);
+            background-color: bisque;
+        }
+        
+        h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 300;
+        }
+        
+        #publish {
+            padding: 20px;
+            background-image: linear-gradient(white, rgb(243, 243, 243));
+        }
+        
+        #publish input {
+            height: 25px;
+            vertical-align: middle;
+            border: 1px solid lightgray;
+            border-radius: 6px;
+            padding-left: 5px;
+        }
+        
+        #publish img {
+            width: 29px;
+            height: 29px;
+            border-radius: 3px;
+            vertical-align: middle;
+        }
+        
+        .before {
+            filter: alpha(opacity=50);
+            opacity: 0.5;
+        }
+        
+        .active,
+        .current {
+            filter: alpha(opacity=100);
+            opacity: 1;
+            border: 1px solid red;
+        }
+        
+        textarea {
+            border: 1px solid lightgray;
+            border-radius: 6px;
+        }
+        
+        #pub {
+            text-align: right;
+            color: grey;
+            font-size: 13px;
+            font-weight: 200;
+        }
+        
+        #pub span {
+            font-size: 14px;
+            color: gray;
+            font-weight: 200;
+        }
+        
+        #pub strong {
+            font-size: 17px;
+        }
+        
+        button {
+            padding: 5px 40px;
+            color: white;
+            border-radius: 5px;
+            border: 2px solid lightgreen;
+            cursor: pointer;
+        }
+        
+        .btn-Non {
+            background-image: linear-gradient(rgb(182, 240, 187), rgb(72, 201, 158));
+        }
+        
+        .btn-Active {
+            background-image: linear-gradient( rgb(72, 201, 158), rgb(182, 240, 187));
+        }
+        
+        #content img {
+            width: 60px;
+            height: 60px;
+            border-radius: 3px;
+            border: 1px solid lightgray;
+        }
+        
+        #content {
+            padding: 0 10px 10px;
+        }
+        
+        h3 {
+            background-color: rgb(183, 224, 190);
+            margin: 10px 10px 0;
+            font-size: 15px;
+            padding: 10px 10px 4px 10px;
+            font-weight: 200;
+            border: 1px solid rgb(183, 224, 222);
+        }
+        
+        h3 span {
+            background-color: white;
+            padding: 5px 10px;
+        }
+        
+        .comment {
+            display: flex;
+            font-size: 15px;
+            padding: 10px 10px;
+            border-bottom: 2px dotted lightgray;
+            position: relative;
+            word-break: break-all;
+            word-wrap: break-word;
+        }
+        
+        .comment img {
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        
+        .comment p {
+            vertical-align: middle;
+            margin: 0;
+            width: 350px;
+        }
+        
+        .time {
+            font-size: 13px;
+            color: rgb(167, 188, 189);
+        }
+        
+        a {
+            color: black;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .del {
+            position: absolute;
+            right: 20px;
+            bottom: 10px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wb">
+        <div id="publish">
+
+            <h2>来，说说你在做什么，想什么</h2>
+            <p>
+                <input type="text" class="f-text" />
+                <img src="1.jpg" class="current before" />
+                <img src="2.jpg" class="before" />
+                <img src="3.jpg" class="before" />
+                <img src="4.jpg" class="before" />
+                <img src="5.jpg" class="before" />
+                <img src="6.jpg" class="before" />
+                <img src="7.jpg" class="before" />
+                <img src="8.jpg" class="before" />
+            </p>
+            <p>
+                <textarea cols="66" rows="3" class="f-text"></textarea>
+            </p>
+            <p id="pub">
+                <span>还能输入</span><strong></strong><span>个字</span><button title="快捷键 Ctrl+Enter" class="btn-Non">广播</button>
+            </p>
+
+        </div>
+        <h3><span>大家在说</span></h3>
+        <div id="content">
+            <div class="comment">
+                <img src="tupian.jpg" />
+                <p>
+                    <a href="javascript:;">小朋友1号</a>：<span>新增删除广播功能。</span>
+                    <br/>
+                    <span class="time">07月05日 15:14 <a href="javascript:;" class="del">删除</a></span>
+                </p>
+            </div>
+            <div class="comment">
+                <img src="tupian.jpg" />
+                <p>
+                    <a href="javascript:;">小朋友1号</a>：<span>新增Ctrl+Enter快捷键发送广播。</span>
+                    <br/>
+                    <span class="time">07月05日 12:20 <a href="javascript:;" class="del">删除</a></span>
+                </p>
+            </div>
+            <div class="comment">
+                <img src="tupian.jpg" />
+                <p>
+                    <a href="javascript:;">小朋友1号</a>：<span>新增选择头像功能。</span>
+                    <br/>
+                    <span class="time">07月05日 12:08 <a href="javascript:;" class="del">删除</a></span>
+                </p>
+            </div>
+            <div class="comment">
+                <img src="tupian.jpg" />
+                <p>
+                    <a href="javascript:;">小朋友1号</a>：<span>增加了记录广播时间的功能。</span>
+                    <br/>
+                    <span class="time">07月04日 16:55 <a href="javascript:;" class="del">删除</a></span>
+                </p>
+            </div>
+            <div class="comment">
+                <img src="tupian.jpg" />
+                <p>
+                    <a href="javascript:;">小朋友1号</a>：<span>增加了输入字符检测功能，英文/半角为半个字符，汉字/全角为一个字符。</span>
+                    <br/>
+                    <span class="time">07月04日 08:30 <a href="javascript:;" class="del">删除</a></span>
+                </p>
+            </div>
+            <div class="comment">
+                <img src="tupian.jpg" />
+                <p>
+                    <a href="javascript:;">小朋友1号</a>：<span>仿腾讯微博效果，欢迎大家测试！</span>
+                    <br/>
+                    <span class="time">07月03日 20:19 <a href="javascript:;" class="del">删除</a></span>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    //封装通过id、className、TagName来获取元素的方法
+
+    var get = {
+        byId: function(id) {
+            return "string" === typeof id ? document.getElementById(id) : id;
+        },
+        byClassName: function(sClass, oParent) {
+            var aClass = [];
+            var regClass = new RegExp("(^| )" + sClass + "( |$)");
+            var aElem = this.byTagName("*", oParent);
+            for (let i = 0; i < aElem.length; i++) {
+                if (regClass.test(aElem[i].className)) {
+                    aClass.push(aElem[i]);
+                }
+            }
+            return aClass;
+        },
+        byTagName: function(elem, obj) {
+            return (obj || document).getElementsByTagName(elem);
+        }
+    };
+    //封装兼容性添加、删除事件的函数
+    var eventUtil = {
+        addHandler: function(oElement, sEvent, fnHandler) {
+            oElement.addEventListener ?
+                oElement.addEventListener(sEvent, fnHandler, false) : oElement.attachEvent("on" + sEvent, fnHandler);
+        },
+        removeHandler: function(oElement, sEvent, fnHandler) {
+            oElement.removeEventListener ?
+                oElement.removeEventListener(sEvent, fnHandler, false) : oElement.detachEvent("on" + sEvent, fnHandler);
+        },
+        addLoadHandler: function(fnHandler) {
+            this.addHandler(window, "load", fnHandler);
+        }
+    };
+    //设置和获取css样式
+    function css(obj, attr, value) {
+        switch (arguments.length) {
+            case 2:
+                if (typeof arguments[1] == "object") { //设置css样式
+                    for (let i in attr) {
+                        i == "opacity" ?
+                            (obj.style["filter"] = "alpha(opacity=" + attr[i] + ")", obj.style[i] = attr[i] / 100) :
+                            obj.style[i] = attr[i];
+                    }
+                } else { //获取css样式兼容处理
+                    return obj.currentStyle ? obj.currentStyle[attr] : getComputedStyle(obj, null)[attr];
+                }
+                break;
+            case 3: //设置css样式
+                attr == "opacity" ?
+                    (obj.style["filter"] = "alpha(opacity=" + value + ")", obj.style[attr] = value / 100) :
+                    obj.style[attr] = value;
+                break;
+        }
+    }
+    //页面加载完毕时执行
+    eventUtil.addLoadHandler(function() {
+        var pub = get.byId("publish");
+        var portraits = get.byTagName("img", pub); //头像
+        var fText = get.byClassName("f-text", pub);
+        var sendBtn = get.byTagName("button", get.byId("pub"))[0]; //广播按钮
+        var comments = get.byClassName("comment"); //评论
+        var deletes = get.byClassName("del"); //删除链接
+        var commentParent = get.byId("content"); //评论区
+        var image = portraits[0]; //选定的头像
+        var bSend = false; //字符限制
+        var max = 140;
+        var tips = get.byTagName("span", get.byId("pub"));
+        var chars = get.byTagName("strong", get.byId("pub"))[0];
+        chars.innerHTML = max;
+        //为广播按钮绑定发送广播事件
+        eventUtil.addHandler(sendBtn, "click", fnSend);
+        //为Ctrl+Enter快捷键绑定发送广播事件
+        eventUtil.addHandler(document, "keyup", function(event) {
+            var event = event || window.event;
+            if (event.ctrlKey && event.keyCode == 13) {
+                fnSend();
+            }
+        });
+        //发送广播事件
+        function fnSend() {
+            var reg = /^\s*$/g;
+            if (reg.test(fText[0].value)) {
+                alert("\u8bf7\u586b\u5199\u60a8\u7684\u6635\u79f0\uff01"); //请填写您的昵称！
+                fText[0].focus();
+            } else if (!/^[\u4e00-\u9fa5\w]{2,8}$/g.test(fText[0].value)) {
+                alert("\u6635\u79f0\u7531\u0032\u002d\u0038\u4f4d\u5b57\u6bcd\u3001\u6570\u5b57\u3001\u4e0b\u5212\u7ebf\u3001\u6c49\u5b57\u7ec4\u6210\uff01"); //昵称由2-8位字母、数字、下划线、汉字组成！
+                fText[0].focus();
+            } else if (reg.test(fText[1].value)) {
+                alert("\u968f\u4fbf\u8bf4\u70b9\u4ec0\u4e48\u5427\uff01"); //随便说点什么吧！
+                fText[1].focus();
+            } else if (!bSend) {
+                alert("\u60a8\u8f93\u5165\u7684\u5185\u5bb9\u5df2\u8d85\u51fa\u9650\u5236\uff0c\u8bf7\u68c0\u67e5\uff01"); //您输入的内容已超出限制，请检查！
+                fText[1].focus();
+            } else {
+                comments = get.byClassName("comment");
+                deletes = get.byClassName("del");
+                var newComment = document.createElement("div");
+                newComment.className = "comment";
+                newComment.innerHTML = "<img src=\"" + image.src +
+                    "\" /><p><a href=\"javascript:;\">" + fText[0].value +
+                    "</a>：<span>" + fText[1].value +
+                    "</span><br/><span class=\"time\">" + date() +
+                    "<a href=\"javascript:;\" class=\"del\">删除</a></span></p>";
+                //插入元素
+                comments.length ? commentParent.insertBefore(newComment, comments[0]) : commentParent.appendChild(newComment);
+                //重置表单和头像为初始状态
+                fText[0].value = "";
+                fText[1].value = "";
+                for (let i = 0; i < portraits.length; i++) {
+                    portraits[i].className = "before";
+                }
+                portraits[0].className += " current";
+                image = portraits[0];
+                //缓慢添加效果实现
+                var iHeight = newComment.clientHeight - parseFloat(css(newComment, "paddingTop")) - parseFloat(css(newComment, "paddingBottom"));
+                var count = alpha = 0;
+                css(newComment, {
+                    "opacity": "0",
+                    "height": "0"
+                });
+                var timer = setInterval(function() {
+                    css(newComment, "height", (count += 8) + "px");
+                    if (count > iHeight) {
+                        clearInterval(timer);
+                        timer = setInterval(function() {
+                            css(newComment, "opacity", (alpha += 10));
+                            if (alpha >= 100) {
+                                clearInterval(timer);
+                            }
+                        }, 30);
+                    }
+                }, 30);
+                //此时comments和deletes数组已经发生变化，所以要重新获取
+                comments = get.byClassName("comment");
+                deletes = get.byClassName("del");
+                commentHover();
+                commentDel();
+            }
+        }
+
+        function date() {
+            var d = new Date();
+            return dateFormat(d.getMonth()) + "月" + dateFormat(d.getDate()) + "日 " + dateFormat(d.getHours()) + ":" + dateFormat(d.getMinutes());
+        }
+
+        function dateFormat(s) {
+            return s.toString().replace(/^(\d)$/, "0$1");
+        }
+
+        //字符限制
+        eventUtil.addHandler(fText[1], "focus", confine);
+        eventUtil.addHandler(fText[1], "keyup", confine);
+        eventUtil.addHandler(fText[1], "change", confine);
+
+        function confine() {
+            var iLength = 0;
+            var remain;
+            for (let i = 0; i < fText[1].value.length; i++) {
+                iLength += /[^\x00-\xff]/g.test(fText[1].value.charAt(i)) ? 1 : 0.5;
+            }
+            remain = Math.abs(max - Math.floor(iLength));
+            console.log(iLength, remain);
+            max - Math.floor(iLength) > 0 ?
+                (css(tips[0], "color", "gray"), css(tips[1], "color", "gray"), tips[0].innerHTML = "\u8fd8\u80fd\u8f93\u5165", chars.innerHTML = remain, css(chars, "color", "grey"), bSend = true) :
+                (css(tips[0], "color", "orange"), css(tips[1], "color", "orange"), tips[0].innerHTML = "\u5df2\u8d85\u51fa", chars.innerHTML = remain, css(chars, "color", "red"), bSend = false);
+        }
+        confine();
+        //鼠标划过和离开评论的处理函数
+        function commentHover() {
+            for (let i = 0; i < comments.length; i++) {
+                eventUtil.addHandler(comments[i], "mouseover", function() {
+                    for (let j = 0; j < comments.length; j++) {
+                        css(comments[j], "backgroundColor", "white");
+                        css(deletes[j], "display", "none");
+                    }
+                    css(this, "backgroundColor", "rgb(231, 233, 233)");
+                    css(deletes[i], "display", "block");
+                });
+                eventUtil.addHandler(comments[i], "mouseout", function() {
+                    css(this, "backgroundColor", "white");
+                    css(deletes[i], "display", "none");
+                })
+            }
+        }
+        commentHover();
+        //删除功能
+        function commentDel() {
+            for (let i = 0; i < deletes.length; i++) {
+                eventUtil.addHandler(deletes[i], "click", function() {
+                    //缓慢删除效果实现
+                    let alpha = 100;
+                    let oParent = this.parentNode.parentNode.parentNode;
+                    let iHeight = oParent.offsetHeight;
+                    var timer = setInterval(function() {
+                        css(oParent, "opacity", (alpha -= 10));
+                        if (alpha <= 0) {
+                            clearInterval(timer);
+                            timer = setInterval(function() {
+                                css(oParent, "height", (iHeight -= 10) + "px");
+                                iHeight = iHeight < 0 ? 0 : iHeight;
+                                if (iHeight == 0) {
+                                    clearInterval(timer);
+                                    commentParent.removeChild(oParent);
+                                }
+                            }, 30);
+                        }
+                    }, 30);
+                    this.onclick = null;
+                });
+            }
+        }
+        commentDel();
+        //头像
+        for (let i = 0; i < portraits.length; i++) {
+            portraits[i].onmouseover = function() {
+                this.className += " active";
+
+            }
+            portraits[i].onmouseout = function() {
+                this.className = this.className.replace(/\s?active/, "");
+            }
+            portraits[i].onclick = function() {
+                for (let j = 0; j < portraits.length; j++) {
+                    portraits[j].className = "before";
+                }
+                this.className += " current";
+                image = this;
+            }
+        }
+        //输入框获取焦点时样式变化
+        for (let i = 0; i < fText.length; i++) {
+            eventUtil.addHandler(fText[i], "focus", function() {
+                this.className += " foc";
+            });
+            eventUtil.addHandler(fText[i], "blur", function() {
+                this.className = this.className.replace(/\s?foc/, "");
+            });
+        }
+
+        //广播按钮
+        eventUtil.addHandler(sendBtn, "mouseover", function() {
+            this.className = "btn-Active";
+        });
+        eventUtil.addHandler(sendBtn, "mouseout", function() {
+            this.className = "btn-Non";
+        });
+    });
+</script>
+
+</html>
