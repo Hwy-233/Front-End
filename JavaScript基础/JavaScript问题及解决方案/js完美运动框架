@@ -1,0 +1,84 @@
+参考https://blog.csdn.net/u011175410/article/details/50351667  JS完美运动框架详解——原理分析及demo
+自我总结
+1.运动原理：改变DOM元素自身的位置属性如宽高、边距、透明度等，让DOM元素在web页面上运动起来
+  注意：运动的物体必须是绝对定位！
+  
+2.运动框架：a.先清除定时器：关闭之前的定时器（避免多次触发，调用多次定时器）
+           b.开启定时器，计算速度
+           c.判断停止条件，执行运动
+           
+3.运动框架实例
+  a.匀速运动：物体以一个【固定速度】做移动
+    匀速运动的停止条件：距离足够近
+    a-1.滑入滑出效果
+    <!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>滑入滑出效果</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        
+        #div {
+            width: 200px;
+            height: 200px;
+            background-color: indianred;
+            position: absolute;
+            left: -200px;
+            top: 0;
+        }
+        
+        span {
+            width: 20px;
+            height: 86px;
+            background-color: gold;
+            color: white;
+            position: absolute;
+            right: -20px;
+            top: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <!--   
+    注意：span标签必须要放在div里面,因为它们是跟随父div一起运动的
+-->
+    <div id="div">
+        <span>滑动效果</span>
+    </div>
+</body>
+<script>
+    window.onload = function() {
+        var oDiv = document.getElementById("div");
+        var timer = null;
+        var iSpeed = 0;
+
+        div.onmouseover = function() {
+            startMove(0); //鼠标移入时的目标位置是div.style.left=0的位置
+        }
+        div.onmouseout = function() {
+            startMove(-200); //鼠标移出时的目标位置是div.style.left=-200的位置
+        }
+
+        function startMove(iTarget) {
+            clearInterval(timer); //关闭之前的定时器,防止鼠标每移入div，就开一个定时器，累加的定时器造成运动混乱
+            iSpeed = oDiv.offsetLeft < iTarget ? 10 : -10;
+            timer = setInterval(function() {
+                if (oDiv.offsetLeft == iTarget) {
+                    clearInterval(timer);
+                } else {
+                    oDiv.style.left = oDiv.offsetLeft + iSpeed + "px";
+                }
+            }, 30);
+        }
+    }
+</script>
+
+</html>
+    a-2.淡入淡出效果
+    a-3.根据速度正负自动改变运动方向
