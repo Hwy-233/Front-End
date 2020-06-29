@@ -219,6 +219,7 @@
 ##### 目标值>当前值，需要对速度向上取整，即speed = Math.ceil(speed)  
 ##### 目标值<当前值，需要对速度向下取整，即speed = Math.floor(speed)  
 ##### b-3.如果当前值＝目标值，清除动画  
+
   <!DOCTYPE HTML>
   <html>
   
@@ -276,6 +277,7 @@
   </script>
   
   </html>  
+  
   
     
     
