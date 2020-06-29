@@ -212,6 +212,63 @@
     
     </html>  
 #### b.缓冲运动：物体以一个【变化的速度】做移动；每次累加的速度值变小，就会使整个物体看起来越来越慢，以至于最后停掉  
+    <!DOCTYPE HTML>
+      <html>
+      
+      <head>
+          <meta charset="utf-8">
+          <title>缓冲运动</title>
+          <style>
+              #div1 {
+                  width: 2px;
+                  height: 300px;
+                  background-color: crimson;
+                  position: absolute;
+                  left: 100px;
+              }
+              
+              #div2 {
+                  width: 150px;
+                  height: 150px;
+                  background-color: crimson;
+                  position: absolute;
+                  left: 500px;
+                  top: 120px;
+              }
+          </style>
+      </head>
+      
+      <body>
+          <p><button>缓冲运动到100</button></p>
+          <div id="div1"></div>
+          <div id="div2"></div>
+      </body>
+      <script>
+          window.onload = function() {
+              var btn = document.getElementsByTagName("button")[0];
+              var box = document.getElementById("div2");
+              var iSpeed = 0;
+              var timer = null;
+              btn.onclick = function() {
+                  startMove(100);
+              };
+      
+              function startMove(iTarget) {
+                  clearInterval(timer);
+                  timer = setInterval(function() {
+                      iSpeed = (iTarget - box.offsetLeft) / 10;
+                      iSpeed = iSpeed > 0 ? Math.ceil(iSpeed) : Math.floor(iSpeed); // 但凡用到缓冲运动，一定要用到向上/向下取整！
+                      if (iTarget == box.offsetLeft) {
+                          clearInterval(timer);
+                      } else {
+                          box.style.left = box.offsetLeft + iSpeed + "px";
+                      }
+                  }, 30);
+              }
+          };
+      </script>
+      
+      </html>  
 ##### b-1.当前值离目标值越近，速度越慢  
 ##### 当前值离目标值越远，速度越快  
 ##### speed = (目标值－当前值)/10  
@@ -219,64 +276,6 @@
 ##### 目标值>当前值，需要对速度向上取整，即speed = Math.ceil(speed)  
 ##### 目标值<当前值，需要对速度向下取整，即speed = Math.floor(speed)  
 ##### b-3.如果当前值＝目标值，清除动画  
-
-  <!DOCTYPE HTML>
-  <html>
-  
-  <head>
-      <meta charset="utf-8">
-      <title>缓冲运动</title>
-      <style>
-          #div1 {
-              width: 2px;
-              height: 300px;
-              background-color: crimson;
-              position: absolute;
-              left: 100px;
-          }
-          
-          #div2 {
-              width: 150px;
-              height: 150px;
-              background-color: crimson;
-              position: absolute;
-              left: 500px;
-              top: 120px;
-          }
-      </style>
-  </head>
-  
-  <body>
-      <p><button>缓冲运动到100</button></p>
-      <div id="div1"></div>
-      <div id="div2"></div>
-  </body>
-  <script>
-      window.onload = function() {
-          var btn = document.getElementsByTagName("button")[0];
-          var box = document.getElementById("div2");
-          var iSpeed = 0;
-          var timer = null;
-          btn.onclick = function() {
-              startMove(100);
-          };
-  
-          function startMove(iTarget) {
-              clearInterval(timer);
-              timer = setInterval(function() {
-                  iSpeed = (iTarget - box.offsetLeft) / 10;
-                  iSpeed = iSpeed > 0 ? Math.ceil(iSpeed) : Math.floor(iSpeed); // 但凡用到缓冲运动，一定要用到向上/向下取整！
-                  if (iTarget == box.offsetLeft) {
-                      clearInterval(timer);
-                  } else {
-                      box.style.left = box.offsetLeft + iSpeed + "px";
-                  }
-              }, 30);
-          }
-      };
-  </script>
-  
-  </html>  
   
   
     
